@@ -1,34 +1,40 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
-
 class Product_model extends CI_Model
 {
 
-    function get_product()
+    public function get_all_products()
     {
-        $query = $this->db->get('product');
-        return $query;
+        return $this->db->get('products')->result();
     }
 
-    function insert_product($product_name, $product_price)
+    public function get_product($id)
     {
-        $data = array(
-            'product_name' => $product_name,
-            'product_price' => $product_price
-        );
-        $this->db->insert('product', $data);
+        return $this->db->get_where('products', array('id' => $id))->row();
     }
 
-    function update_product($product_id, $product_name, $product_price)
+    public function insert_product($data)
     {
-        $this->db->set('product_name', $product_name);
-        $this->db->set('product_price', $product_price);
-        $this->db->where('product_id', $product_id);
-        $this->db->update('product');
+        // Add debug logging
+        log_message('debug', 'Attempting to insert product: ' . print_r($data, TRUE));
+
+        $result = $this->db->insert('products', $data);
+
+        if (!$result) {
+            // Log database errors
+            log_message('error', 'Database Error: ' . print_r($this->db->error(), TRUE));
+        }
+
+        return $result;
     }
 
-    function delete_product($product_id)
+    public function update_product($id, $data)
     {
-        $this->db->delete('product', array('product_id' => $product_id));
+        $this->db->where('id', $id);
+        return $this->db->update('products', $data);
+    }
+
+    public function delete_product($id)
+    {
+        return $this->db->delete('products', array('id' => $id));
     }
 }
